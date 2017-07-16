@@ -6,6 +6,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
@@ -16,7 +17,7 @@ import static android.text.TextUtils.isEmpty;
  * Created by mohamed ibrahim on 7/14/2017.
  */
 
-public class BaseActivity extends LifecycleActivity {
+public class BaseActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
 
     public void showProgressBar() {

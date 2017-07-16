@@ -3,6 +3,7 @@ package com.app.assignment.repository.local;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import com.app.assignment.repository.model.City;
@@ -18,11 +19,12 @@ import io.reactivex.Flowable;
 @Dao
 public interface CityDao {
 
-    @Query("SELECT * FROM CITY ORDER BY name , country  LIMIT 50")
+
+    @Query("SELECT * FROM CITY ORDER BY name  ASC")
     Flowable<List<City>> loadCities();
 
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<City> cities);
 
 

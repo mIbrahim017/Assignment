@@ -1,5 +1,7 @@
 package com.app.assignment.Main;
 
+import android.util.Log;
+
 import com.app.assignment.repository.CityRepository;
 import com.app.assignment.repository.model.City;
 
@@ -7,7 +9,7 @@ import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
@@ -17,37 +19,76 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MainPresenter implements MainContract.Presenter {
 
+    private CompositeDisposable mDisposable = new CompositeDisposable();
+
+
     private CityRepository repo;
     private MainContract.View view;
-    private int lastId = 1;
     private int currentPage = 1;
-    private Disposable subscribe;
 
 
-    public MainPresenter(CityRepository repo, MainContract.View view) {
+    public MainPresenter(CityRepository repo, final MainContract.View view) {
         this.repo = repo;
         this.view = view;
+
+        mDisposable.add(
+                repo.getCitiesCache()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Consumer<List<City>>() {
+                            @Override
+                            public void accept(@NonNull List<City> cities) throws Exception {
+
+                                if (cities != null && cities.size() > 0) showList(cities);
+                                else loadCities();
+
+                            }
+
+
+                        }, new Consumer<Throwable>() {
+                            @Override
+                            public void accept(@NonNull Throwable throwable) throws Exception {
+                                showError(throwable.getMessage());
+                                Log.e("MainPresenter" , throwable.getMessage());
+                            }
+                        })
+        );
+
+
     }
 
+    private void showError(String msg) {
+        if (view == null) return;
+        view.onFail(msg);
+    }
+
+    private void showList(List<City> cities) {
+        if (view == null) return;
+        view.onCitiesLoaded(cities);
+
+
+    }
 
     @Override
     public void loadCities() {
+        mDisposable.add(
+                repo.getCitiesRemotely(currentPage)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Consumer<List<City>>() {
+                            @Override
+                            public void accept(@NonNull List<City> cities) throws Exception {
+                                currentPage += 1;
 
-        subscribe = repo.getCities(lastId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<List<City>>() {
-                    @Override
-                    public void accept(@NonNull List<City> cities) throws Exception {
-                        view.onCitiesLoaded(cities);
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(@NonNull Throwable throwable) throws Exception {
-                        view.onError(throwable.getMessage());
-                    }
-                });
-
+                            }
+                        }, new Consumer<Throwable>() {
+                            @Override
+                            public void accept(@NonNull Throwable throwable) throws Exception {
+                                showError(throwable.getMessage());
+                                Log.e("MainPresenter" , throwable.getMessage());
+                            }
+                        })
+        );
 
     }
 
@@ -55,10 +96,7 @@ public class MainPresenter implements MainContract.Presenter {
     public void detach() {
         repo = null;
         view = null;
-
-        if (subscribe != null) {
-            subscribe.dispose();
-            subscribe = null;
-        }
+        mDisposable.clear();
+        mDisposable = null;
     }
 }

@@ -10,11 +10,16 @@ import org.reactivestreams.Publisher;
 
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
 import io.reactivex.Flowable;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
+import io.reactivex.internal.operators.completable.CompletableFromAction;
+import retrofit2.Call;
 
 /**
  * Created by mohamed ibrahim on 7/14/2017.
@@ -32,16 +37,51 @@ public class CityRepository {
     }
 
 
-    public Flowable<List<City>> getCities(final int lastId) {
+    public Flowable<List<City>> getCitiesCache() {
+        return db.loadCities();
+    }
+
+
+    public Flowable<List<City>> getCitiesRemotely(final int page) {
+        return services.getCities(page).doOnNext(new Consumer<List<City>>() {
+            @Override
+            public void accept(@NonNull List<City> cities) throws Exception {
+                db.insertAll(cities);
+            }
+        });
+    }
+
+    public Completable getCitiesRemotely_(final int page) {
+        return new CompletableFromAction(new Action() {
+            @Override
+            public void run() throws Exception {
+
+                services.getCities(page).doOnNext(new Consumer<List<City>>() {
+                    @Override
+                    public void accept(@NonNull List<City> cities) throws Exception {
+                        db.insertAll(cities);
+                    }
+                });
+            }
+        });
+
+
+    }
+
+    public Flowable<List<City>> getCities(final int currentPage) {
+
 
         final Flowable<List<City>> cache = db.loadCities();
 
-        final Flowable<List<City>> network = services.getCities(lastId).doOnNext(new Consumer<List<City>>() {
+
+        final Flowable<List<City>> network = services.getCities(currentPage).doOnNext(new Consumer<List<City>>() {
             @Override
             public void accept(@NonNull List<City> cities) throws Exception {
                 db.insertAll(cities);
             }
         }).concatWith(cache);
+
+        if (currentPage > 1) return network;
 
 
         return cache.flatMap(new Function<List<City>, Publisher<List<City>>>() {

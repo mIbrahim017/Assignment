@@ -1,8 +1,10 @@
 package com.app.assignment.Main;
 
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 
 import com.app.assignment.Common.BaseActivity;
 import com.app.assignment.Common.DependenciesManager;
@@ -13,11 +15,14 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends BaseActivity implements MainContract.View {
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
 
     private MainContract.Presenter presenter;
     private CityAdapter cityAdapter;
@@ -28,11 +33,25 @@ public class MainActivity extends BaseActivity implements MainContract.View {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        initToolbar();
         DependenciesManager.instance.inject(this);
 
 
     }
 
+
+    private void initToolbar() {
+
+
+        setSupportActionBar(mToolbar);
+        setTitle(getString(R.string.app_name));
+        mToolbar.setTitleTextColor(ContextCompat.getColor(this ,android.R.color.white));
+    }
+
+    @OnClick(R.id.loadmore)
+    void onLoadMore() {
+        if (presenter != null) presenter.loadCities();
+    }
 
     @Override
     protected void onDestroy() {
@@ -48,8 +67,6 @@ public class MainActivity extends BaseActivity implements MainContract.View {
         recyclerView.setAdapter(cityAdapter);
 
         this.presenter.loadCities();
-
-
     }
 
     @Override
@@ -57,8 +74,4 @@ public class MainActivity extends BaseActivity implements MainContract.View {
         cityAdapter.addCities(cities);
     }
 
-    @Override
-    public void onError(String error) {
-        showNotification(error);
-    }
 }

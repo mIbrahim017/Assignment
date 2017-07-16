@@ -10,7 +10,6 @@ import com.app.assignment.R;
 import com.app.assignment.databinding.RecyclerItemBinding;
 import com.app.assignment.repository.model.City;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,7 +18,7 @@ import java.util.List;
 
 public class CityAdapter extends RecyclerView.Adapter<CityAdapter.VH> {
 
-    private final List<City> cities = new ArrayList<>();
+    private List<City> cities;
 
 
     @Override
@@ -29,8 +28,8 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.VH> {
     }
 
     public void addCities(List<City> cities) {
-        Log.e("adapter" , "cities size : " + cities.size());
-        this.cities.addAll(cities);
+        Log.e("adapter", "cities size : " + cities.size());
+        this.cities = cities;
         notifyDataSetChanged();
 
     }

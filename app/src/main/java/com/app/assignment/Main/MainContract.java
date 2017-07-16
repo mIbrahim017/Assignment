@@ -20,7 +20,7 @@ public interface MainContract {
     interface View  extends BaseView{
         void onCitiesLoaded(List<City> cities);
 
-        void onError(String error);
+
     }
 
 
