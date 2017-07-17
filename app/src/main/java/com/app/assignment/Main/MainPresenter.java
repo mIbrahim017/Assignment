@@ -1,5 +1,6 @@
 package com.app.assignment.Main;
 
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.app.assignment.repository.CityRepository;
@@ -22,14 +23,18 @@ public class MainPresenter implements MainContract.Presenter {
     private CompositeDisposable mDisposable = new CompositeDisposable();
 
 
+    private SharedPreferences sharedPreferences;
     private CityRepository repo;
     private MainContract.View view;
     private int currentPage = 1;
 
 
-    public MainPresenter(CityRepository repo, final MainContract.View view) {
+    public MainPresenter(CityRepository repo, final MainContract.View view, SharedPreferences sharedPreferences) {
         this.repo = repo;
         this.view = view;
+        this.sharedPreferences = sharedPreferences;
+
+        currentPage = sharedPreferences.getInt("currentPage", 1);
 
         mDisposable.add(
                 repo.getCitiesCache()
@@ -49,7 +54,7 @@ public class MainPresenter implements MainContract.Presenter {
                             @Override
                             public void accept(@NonNull Throwable throwable) throws Exception {
                                 showError(throwable.getMessage());
-                                Log.e("MainPresenter" , throwable.getMessage());
+                                Log.e("MainPresenter", throwable.getMessage());
                             }
                         })
         );
@@ -79,13 +84,14 @@ public class MainPresenter implements MainContract.Presenter {
                             @Override
                             public void accept(@NonNull List<City> cities) throws Exception {
                                 currentPage += 1;
+                                sharedPreferences.edit().putInt("currentPage", currentPage).apply();
 
                             }
                         }, new Consumer<Throwable>() {
                             @Override
                             public void accept(@NonNull Throwable throwable) throws Exception {
                                 showError(throwable.getMessage());
-                                Log.e("MainPresenter" , throwable.getMessage());
+                                Log.e("MainPresenter", throwable.getMessage());
                             }
                         })
         );

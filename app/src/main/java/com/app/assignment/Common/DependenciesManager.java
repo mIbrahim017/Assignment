@@ -2,6 +2,7 @@ package com.app.assignment.Common;
 
 import android.arch.persistence.room.Room;
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.app.assignment.Main.MainActivity;
 import com.app.assignment.Main.MainPresenter;
@@ -21,6 +22,7 @@ public class DependenciesManager {
 
 
     private static AppDatabase db;
+    private static SharedPreferences sharedPreferences;
 
     private APIsServices services = APIsFactory.createInstance("http://assignment.pharos-solutions.de");
 
@@ -30,6 +32,7 @@ public class DependenciesManager {
 
     public static void init(Context context) {
         db = Room.databaseBuilder(context, AppDatabase.class, "database-task").build();
+        sharedPreferences = context.getSharedPreferences("sharedprefs-task", Context.MODE_PRIVATE);
     }
 
 
@@ -39,7 +42,7 @@ public class DependenciesManager {
     }
 
     public void inject(MainActivity mainActivity) {
-        mainActivity.configureWith(new MainPresenter(cityRepository(), mainActivity));
+        mainActivity.configureWith(new MainPresenter(cityRepository(), mainActivity , sharedPreferences));
 
     }
 

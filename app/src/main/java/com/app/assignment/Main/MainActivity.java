@@ -66,7 +66,7 @@ public class MainActivity extends BaseActivity implements MainContract.View {
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(cityAdapter);
 
-        this.presenter.loadCities();
+//        this.presenter.loadCities();
     }
 
     @Override

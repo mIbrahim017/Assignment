@@ -36,7 +36,7 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.VH> {
 
     @Override
     public int getItemCount() {
-        return cities.size();
+        return cities == null ? 0 : cities.size();
     }
 
     @Override
