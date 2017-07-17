@@ -15,20 +15,11 @@ import com.app.assignment.Common.DependenciesManager;
 import com.app.assignment.R;
 import com.app.assignment.repository.model.City;
 
-import org.reactivestreams.Publisher;
-
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import io.reactivex.functions.Predicate;
-import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends BaseActivity implements MainContract.View {
 
@@ -89,34 +80,19 @@ public class MainActivity extends BaseActivity implements MainContract.View {
 
         final MenuItem searchItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
 
-        RxSearch.fromSearchView(searchView)
-                .debounce(500, TimeUnit.MILLISECONDS)
-                .filter(new Predicate<String>() {
-                    @Override
-                    public boolean test(@NonNull String s) throws Exception {
-                        return s.length() > 1 ;
-                    }
-                })
-                .flatMap(new Function<String, Publisher<List<City>>>() {
-                    @Override
-                    public Publisher<List<City>> apply(@NonNull String s) throws Exception {
-                        return null;
-                    }
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<List<City>>() {
-                    @Override
-                    public void accept(@NonNull List<City> s) throws Exception {
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                cityAdapter.getFilter().filter(newText);
+                return true;
+            }
+        });
 
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(@NonNull Throwable throwable) throws Exception {
-
-                    }
-                });
 
         return true;
     }

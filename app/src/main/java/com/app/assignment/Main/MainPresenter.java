@@ -8,6 +8,7 @@ import com.app.assignment.repository.model.City;
 
 import java.util.List;
 
+import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
@@ -105,4 +106,6 @@ public class MainPresenter implements MainContract.Presenter {
         mDisposable.clear();
         mDisposable = null;
     }
+
+
 }

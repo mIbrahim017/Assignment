@@ -25,9 +25,6 @@ public interface CityDao {
 
 
 
-    @Query("SELET * FROM CITY WHERE name like :name  ORDER BY name  ASC")
-    Flowable<List<City>> filter(String name);
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<City> cities);
 

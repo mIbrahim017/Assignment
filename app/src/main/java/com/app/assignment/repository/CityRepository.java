@@ -1,7 +1,5 @@
 package com.app.assignment.repository;
 
-import android.util.Log;
-
 import com.app.assignment.repository.local.CityDao;
 import com.app.assignment.repository.model.City;
 import com.app.assignment.repository.remote.APIsServices;
@@ -11,15 +9,12 @@ import org.reactivestreams.Publisher;
 import java.util.List;
 
 import io.reactivex.Completable;
-import io.reactivex.CompletableObserver;
 import io.reactivex.Flowable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
-import io.reactivex.functions.Predicate;
 import io.reactivex.internal.operators.completable.CompletableFromAction;
-import retrofit2.Call;
 
 /**
  * Created by mohamed ibrahim on 7/14/2017.
@@ -67,6 +62,7 @@ public class CityRepository {
 
 
     }
+
 
     public Flowable<List<City>> getCities(final int currentPage) {
 
