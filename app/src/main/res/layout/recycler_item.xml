@@ -8,19 +8,35 @@
         <variable
             name="city"
             type="com.app.assignment.repository.model.City" />
+
+        <variable
+            name="callback"
+            type="com.app.assignment.Main.CityAdapter" />
+
     </data>
 
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="8dp"
+
+        android:orientation="vertical"
+        app:cardBackgroundColor="#fff"
+        app:cardCornerRadius="2dp"
         app:cardElevation="4dp"
         app:cardUseCompatPadding="true">
 
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:onClick="@{() -> callback.onCityItemClicked(city)}" />
+
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:clickable="true"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -48,9 +64,11 @@
             </LinearLayout>
 
             <ImageView
-                android:layout_width="240dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="0"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
                 app:lat="@{city.coord.lat}"
                 app:lng="@{city.coord.lon}" />
 

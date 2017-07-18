@@ -1,5 +1,6 @@
 package com.app.assignment.Main;
 
+import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,7 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.Toast;
 
+import com.app.assignment.Map.MapsActivity;
 import com.app.assignment.R;
 import com.app.assignment.databinding.RecyclerItemBinding;
 import com.app.assignment.repository.model.City;
@@ -31,17 +34,18 @@ public class CityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     private int visibleThreshold = 5;
     private int lastVisibleItem, totalItemCount;
 
-    private boolean isSearchMode;
-
-
 
     private List<City> originalCities = new ArrayList<>();
 
     private List<City> cities;
     private SearchView searchView;
 
+    private Context context;
 
-    public CityAdapter(RecyclerView mRecyclerView) {
+    public CityAdapter(Context context, RecyclerView mRecyclerView) {
+
+        this.context = context;
+
         final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -84,19 +88,31 @@ public class CityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         return null;
     }
 
-    public void setSearchMode(boolean searchMode) {
-        isSearchMode = searchMode;
+
+
+    public void onCityItemClicked() {
+        Toast.makeText(context, "clickd", Toast.LENGTH_SHORT).show();
+
     }
 
-    public boolean isSearchMode() {
-        return isSearchMode;
+
+
+    public void onCityItemClicked(City city) {
+        if (city == null) return;
+        MapsActivity.navigate(context, city.coord.lat, city.coord.lon , city.name);
+
     }
+
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
         if (holder instanceof VH) {
-            ((VH) holder).binding.setCity(cities.get(position));
+
+            VH vh = (VH) holder;
+            vh.binding.setCallback(this);
+            vh.binding.setCity(cities.get(position));
+
         } else if (holder instanceof LoadHolder) {
 
         }
@@ -216,6 +232,8 @@ public class CityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         public VH(RecyclerItemBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+
+
         }
 
 

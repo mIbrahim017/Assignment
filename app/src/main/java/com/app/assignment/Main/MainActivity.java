@@ -12,6 +12,7 @@ import android.view.MenuItem;
 
 import com.app.assignment.Common.BaseActivity;
 import com.app.assignment.Common.DependenciesManager;
+import com.app.assignment.Map.MapsActivity;
 import com.app.assignment.R;
 import com.app.assignment.repository.model.City;
 
@@ -64,9 +65,6 @@ public class MainActivity extends BaseActivity implements MainContract.View {
         initRecyclerView();
         initAdapter();
 
-
-
-//        this.presenter.loadCities();
     }
 
 
@@ -76,19 +74,27 @@ public class MainActivity extends BaseActivity implements MainContract.View {
 
     }
 
+
+    private Runnable removeLoaderRunnable = new Runnable() {
+        @Override
+        public void run() {
+            cityAdapter.addLoadMoreItem();
+            presenter.loadCities();
+        }
+    };
+
     private void initAdapter() {
-        cityAdapter = new CityAdapter(recyclerView);
+        cityAdapter = new CityAdapter(this ,recyclerView);
         recyclerView.setAdapter(cityAdapter);
         cityAdapter.setOnLoadMoreListener(new CityAdapter.OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
-                cityAdapter.addLoadMoreItem();
-                presenter.loadCities();
+                recyclerView.post(removeLoaderRunnable);
+
             }
         });
 
     }
-
 
 
     @Override
@@ -96,7 +102,7 @@ public class MainActivity extends BaseActivity implements MainContract.View {
         getMenuInflater().inflate(R.menu.search, menu);
 
         final MenuItem searchItem = menu.findItem(R.id.action_search);
-         searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
 
         cityAdapter.setSearchView(searchView);
 

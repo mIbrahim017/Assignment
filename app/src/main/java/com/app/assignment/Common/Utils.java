@@ -1,5 +1,6 @@
 package com.app.assignment.Common;
 
+import android.content.Context;
 import android.databinding.BindingAdapter;
 import android.widget.ImageView;
 

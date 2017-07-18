@@ -44,6 +44,9 @@ public class MainPresenter implements MainContract.Presenter {
                             @Override
                             public void accept(@NonNull List<City> cities) throws Exception {
 
+
+                                Log.e("MainPresenter", Thread.currentThread().getName());
+
                                 if (cities != null && cities.size() > 0) showList(cities);
                                 else loadCities();
 
@@ -53,11 +56,10 @@ public class MainPresenter implements MainContract.Presenter {
                         }, new Consumer<Throwable>() {
                             @Override
                             public void accept(@NonNull Throwable throwable) throws Exception {
-                                if (throwable == null) showError("Some thing wrong try later");
-                                else {
-                                    showError(throwable.getMessage());
-                                    Log.e("MainPresenter", throwable.getMessage());
-                                }
+                                if (throwable != null) throwable.printStackTrace();
+                                Log.e("MainPresenter", Thread.currentThread().getName());
+                                showError("Some thing wrong try later");
+
                             }
                         })
         );
@@ -79,28 +81,31 @@ public class MainPresenter implements MainContract.Presenter {
 
     @Override
     public void loadCities() {
-        mDisposable.add(
-                repo.getCitiesRemotely(currentPage)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Consumer<List<City>>() {
-                            @Override
-                            public void accept(@NonNull List<City> cities) throws Exception {
-                                currentPage += 1;
-                                sharedPreferences.edit().putInt("currentPage", currentPage).apply();
 
-                            }
-                        }, new Consumer<Throwable>() {
-                            @Override
-                            public void accept(@NonNull Throwable throwable) throws Exception {
-                                if (throwable == null) showError("Some thing wrong try later");
-                                else {
-                                    showError(throwable.getMessage());
-                                    Log.e("MainPresenter", throwable.getMessage());
+        if (view.checkNetworkConnection()) {
+            mDisposable.add(
+                    repo.getCitiesRemotely(currentPage)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Consumer<List<City>>() {
+                                @Override
+                                public void accept(@NonNull List<City> cities) throws Exception {
+                                    currentPage += 1;
+                                    sharedPreferences.edit().putInt("currentPage", currentPage).apply();
+
                                 }
-                            }
-                        })
-        );
+                            }, new Consumer<Throwable>() {
+                                @Override
+                                public void accept(@NonNull Throwable throwable) throws Exception {
+                                    if (throwable != null) throwable.printStackTrace();
+                                    showError("Some thing wrong try later");
+
+                                }
+                            })
+            );
+        }else {
+            showError("No Internet connection");
+        }
 
     }
 

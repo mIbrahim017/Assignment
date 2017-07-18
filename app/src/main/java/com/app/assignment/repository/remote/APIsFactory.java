@@ -39,8 +39,8 @@ public class APIsFactory {
     private static OkHttpClient newClient() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
-        builder.connectTimeout(1, TimeUnit.SECONDS)
-                .readTimeout(1, TimeUnit.SECONDS).
+        builder.connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS).
                 addInterceptor(new HttpLoggingInterceptor().setLevel(BODY));
 
 
