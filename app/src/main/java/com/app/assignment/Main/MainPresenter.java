@@ -8,7 +8,6 @@ import com.app.assignment.repository.model.City;
 
 import java.util.List;
 
-import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
@@ -54,8 +53,11 @@ public class MainPresenter implements MainContract.Presenter {
                         }, new Consumer<Throwable>() {
                             @Override
                             public void accept(@NonNull Throwable throwable) throws Exception {
-                                showError(throwable.getMessage());
-                                Log.e("MainPresenter", throwable.getMessage());
+                                if (throwable == null) showError("Some thing wrong try later");
+                                else {
+                                    showError(throwable.getMessage());
+                                    Log.e("MainPresenter", throwable.getMessage());
+                                }
                             }
                         })
         );
@@ -91,8 +93,11 @@ public class MainPresenter implements MainContract.Presenter {
                         }, new Consumer<Throwable>() {
                             @Override
                             public void accept(@NonNull Throwable throwable) throws Exception {
-                                showError(throwable.getMessage());
-                                Log.e("MainPresenter", throwable.getMessage());
+                                if (throwable == null) showError("Some thing wrong try later");
+                                else {
+                                    showError(throwable.getMessage());
+                                    Log.e("MainPresenter", throwable.getMessage());
+                                }
                             }
                         })
         );

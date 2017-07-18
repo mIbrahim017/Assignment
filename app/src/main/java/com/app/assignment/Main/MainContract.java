@@ -20,7 +20,7 @@ public interface MainContract {
 
         void detach();
 
-        
+
     }
 
     interface View  extends BaseView{

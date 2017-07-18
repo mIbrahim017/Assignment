@@ -1,10 +1,13 @@
 package com.app.assignment.Main;
 
 import android.databinding.DataBindingUtil;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -17,27 +20,98 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by mohamed ibrahim on 7/14/2017.
+ * Created by mohamed ibrahim on 7/18/2017.
  */
 
-public class CityAdapter extends RecyclerView.Adapter<CityAdapter.VH> implements Filterable {
+public class CityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
+    private final int VIEW_TYPE_ITEM = 0;
+    private final int VIEW_TYPE_LOADING = 1;
+    private OnLoadMoreListener mOnLoadMoreListener;
+    private boolean isLoading;
+    private int visibleThreshold = 5;
+    private int lastVisibleItem, totalItemCount;
+
+    private boolean isSearchMode;
+
+
 
     private List<City> originalCities = new ArrayList<>();
 
     private List<City> cities;
+    private SearchView searchView;
+
+
+    public CityAdapter(RecyclerView mRecyclerView) {
+        final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                totalItemCount = linearLayoutManager.getItemCount();
+                lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
+                if (searchView != null && !searchView.isIconified()) return;
+                if (!isLoading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
+                    if (mOnLoadMoreListener != null) {
+                        mOnLoadMoreListener.onLoadMore();
+                    }
+                    isLoading = true;
+                }
+            }
+        });
+    }
+
+    public void setOnLoadMoreListener(OnLoadMoreListener mOnLoadMoreListener) {
+        this.mOnLoadMoreListener = mOnLoadMoreListener;
+    }
 
 
     @Override
-    public VH onCreateViewHolder(ViewGroup parent, int viewType) {
-        final RecyclerItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.recycler_item, parent, false);
-        return new VH(binding);
+    public int getItemViewType(int position) {
+        return cities.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
     }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+        if (viewType == VIEW_TYPE_ITEM) {
+            final RecyclerItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.recycler_item, parent, false);
+            return new VH(binding);
+        } else if (viewType == VIEW_TYPE_LOADING) {
+            return new LoadHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item_load, parent, false));
+
+
+        }
+        return null;
+    }
+
+    public void setSearchMode(boolean searchMode) {
+        isSearchMode = searchMode;
+    }
+
+    public boolean isSearchMode() {
+        return isSearchMode;
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+
+        if (holder instanceof VH) {
+            ((VH) holder).binding.setCity(cities.get(position));
+        } else if (holder instanceof LoadHolder) {
+
+        }
+    }
+
+    public void setLoaded() {
+        isLoading = false;
+    }
+
 
     public void addCities(List<City> cities) {
         Log.e("adapter", "cities size : " + cities.size());
 
         originalCities.clear();
-        originalCities.addAll(cities) ;
+        originalCities.addAll(cities);
         this.cities = cities;
         notifyDataSetChanged();
 
@@ -48,31 +122,38 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.VH> implements
         notifyDataSetChanged();
     }
 
-    @Override
-    public int getItemCount() {
-        return cities == null ? 0 : cities.size();
-    }
-
-    @Override
-    public void onBindViewHolder(VH holder, int position) {
-        holder.binding.setCity(cities.get(position));
-    }
 
     @Override
     public Filter getFilter() {
         return new CitiesFilter(this, originalCities);
     }
 
-    static class VH extends RecyclerView.ViewHolder {
-
-        final RecyclerItemBinding binding;
-
-        public VH(RecyclerItemBinding binding) {
-            super(binding.getRoot());
-            this.binding = binding;
-        }
+    @Override
+    public int getItemCount() {
+        return cities == null ? 0 : cities.size();
+    }
 
 
+    public void addLoadMoreItem() {
+        if (cities == null) return;
+        cities.add(null);
+        notifyItemInserted(cities.size() - 1);
+
+    }
+
+
+    public void removeLoadMoreItem() {
+        if (cities == null) return;
+        cities.add(null);
+        notifyItemInserted(cities.size() - 1);
+    }
+
+    public void setSearchView(SearchView searchView) {
+        this.searchView = searchView;
+    }
+
+    interface OnLoadMoreListener {
+        void onLoadMore();
     }
 
 
@@ -82,6 +163,7 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.VH> implements
 
         private final List<City> originalData;
         private List<City> filteredData;
+
 
         public CitiesFilter(CityAdapter listAdapter, List<City> originalData) {
             this.listAdapter = listAdapter;
@@ -119,5 +201,23 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.VH> implements
             listAdapter.addFilerCities((List<City>) filterResults.values);
 
         }
+    }
+
+    static class LoadHolder extends RecyclerView.ViewHolder {
+        public LoadHolder(View itemView) {
+            super(itemView);
+        }
+    }
+
+    static class VH extends RecyclerView.ViewHolder {
+
+        final RecyclerItemBinding binding;
+
+        public VH(RecyclerItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+
+
     }
 }

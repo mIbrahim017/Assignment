@@ -19,7 +19,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class MainActivity extends BaseActivity implements MainContract.View {
 
@@ -30,6 +29,7 @@ public class MainActivity extends BaseActivity implements MainContract.View {
 
     private MainContract.Presenter presenter;
     private CityAdapter cityAdapter;
+    private SearchView searchView;
 
 
     @Override
@@ -52,10 +52,6 @@ public class MainActivity extends BaseActivity implements MainContract.View {
         mToolbar.setTitleTextColor(ContextCompat.getColor(this, android.R.color.white));
     }
 
-    @OnClick(R.id.loadmore)
-    void onLoadMore() {
-        if (presenter != null) presenter.loadCities();
-    }
 
     @Override
     protected void onDestroy() {
@@ -65,13 +61,34 @@ public class MainActivity extends BaseActivity implements MainContract.View {
 
     public void configureWith(MainContract.Presenter presenter) {
         this.presenter = presenter;
-        cityAdapter = new CityAdapter();
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(cityAdapter);
+        initRecyclerView();
+        initAdapter();
+
+
 
 //        this.presenter.loadCities();
     }
+
+
+    private void initRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+
+    }
+
+    private void initAdapter() {
+        cityAdapter = new CityAdapter(recyclerView);
+        recyclerView.setAdapter(cityAdapter);
+        cityAdapter.setOnLoadMoreListener(new CityAdapter.OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                cityAdapter.addLoadMoreItem();
+                presenter.loadCities();
+            }
+        });
+
+    }
+
 
 
     @Override
@@ -79,7 +96,11 @@ public class MainActivity extends BaseActivity implements MainContract.View {
         getMenuInflater().inflate(R.menu.search, menu);
 
         final MenuItem searchItem = menu.findItem(R.id.action_search);
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+         searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+
+        cityAdapter.setSearchView(searchView);
+
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -97,9 +118,12 @@ public class MainActivity extends BaseActivity implements MainContract.View {
         return true;
     }
 
+
     @Override
     public void onCitiesLoaded(List<City> cities) {
+        cityAdapter.removeLoadMoreItem();
         cityAdapter.addCities(cities);
+        cityAdapter.setLoaded();
     }
 
 }
