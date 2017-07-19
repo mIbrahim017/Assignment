@@ -6,6 +6,7 @@ import android.util.Log;
 import com.app.assignment.repository.CityRepository;
 import com.app.assignment.repository.model.City;
 
+import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -27,6 +28,9 @@ public class MainPresenter implements MainContract.Presenter {
     private CityRepository repo;
     private MainContract.View view;
     private int currentPage = 1;
+
+
+    private SearchCityInteractor searchCityInteractor;
 
 
     public MainPresenter(CityRepository repo, final MainContract.View view, SharedPreferences sharedPreferences) {
@@ -74,6 +78,7 @@ public class MainPresenter implements MainContract.Presenter {
 
     private void showList(List<City> cities) {
         if (view == null) return;
+        searchCityInteractor = new SearchCityInteractor(cities);
         view.onCitiesLoaded(cities);
 
 
@@ -103,10 +108,16 @@ public class MainPresenter implements MainContract.Presenter {
                                 }
                             })
             );
-        }else {
+        } else {
             showError("No Internet connection");
         }
 
+    }
+
+    @Override
+    public List<City> searchCities(String prefix) {
+        if (searchCityInteractor == null) return Collections.emptyList();
+        return searchCityInteractor.search(prefix);
     }
 
     @Override

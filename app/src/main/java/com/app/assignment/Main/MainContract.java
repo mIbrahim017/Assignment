@@ -17,7 +17,7 @@ public interface MainContract {
 
     interface Presenter {
         void loadCities();
-
+        List<City> searchCities(String prefix);
         void detach();
 
 

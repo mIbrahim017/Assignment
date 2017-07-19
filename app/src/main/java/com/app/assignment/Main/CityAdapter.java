@@ -5,7 +5,6 @@ import android.databinding.DataBindingUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +18,6 @@ import com.app.assignment.R;
 import com.app.assignment.databinding.RecyclerItemBinding;
 import com.app.assignment.repository.model.City;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,16 +33,16 @@ public class CityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     private int lastVisibleItem, totalItemCount;
 
 
-    private List<City> originalCities = new ArrayList<>();
-
     private List<City> cities;
     private SearchView searchView;
 
     private Context context;
+    private MainContract.Presenter presenter;
 
-    public CityAdapter(Context context, RecyclerView mRecyclerView) {
+    public CityAdapter(Context context, RecyclerView mRecyclerView, MainContract.Presenter presenter) {
 
         this.context = context;
+        this.presenter = presenter;
 
         final LinearLayoutManager linearLayoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -89,17 +87,15 @@ public class CityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     }
 
 
-
     public void onCityItemClicked() {
         Toast.makeText(context, "clickd", Toast.LENGTH_SHORT).show();
 
     }
 
 
-
     public void onCityItemClicked(City city) {
         if (city == null) return;
-        MapsActivity.navigate(context, city.coord.lat, city.coord.lon , city.name);
+        MapsActivity.navigate(context, city.coord.lat, city.coord.lon, city.name);
 
     }
 
@@ -123,25 +119,19 @@ public class CityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     }
 
 
-    public void addCities(List<City> cities) {
+      void addCities(List<City> cities) {
         Log.e("adapter", "cities size : " + cities.size());
-
-        originalCities.clear();
-        originalCities.addAll(cities);
         this.cities = cities;
         notifyDataSetChanged();
 
     }
 
-    public void addFilerCities(List<City> cities) {
-        this.cities = cities;
-        notifyDataSetChanged();
-    }
+
 
 
     @Override
     public Filter getFilter() {
-        return new CitiesFilter(this, originalCities);
+        return new CitiesFilter(this);
     }
 
     @Override
@@ -150,7 +140,7 @@ public class CityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     }
 
 
-    public void addLoadMoreItem() {
+      void addLoadMoreItem() {
         if (cities == null) return;
         cities.add(null);
         notifyItemInserted(cities.size() - 1);
@@ -158,13 +148,13 @@ public class CityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     }
 
 
-    public void removeLoadMoreItem() {
+      void removeLoadMoreItem() {
         if (cities == null) return;
         cities.add(null);
         notifyItemInserted(cities.size() - 1);
     }
 
-    public void setSearchView(SearchView searchView) {
+      void setSearchView(SearchView searchView) {
         this.searchView = searchView;
     }
 
@@ -174,47 +164,28 @@ public class CityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
 
     private static class CitiesFilter extends Filter {
-
         private final CityAdapter listAdapter;
 
-        private final List<City> originalData;
-        private List<City> filteredData;
 
-
-        public CitiesFilter(CityAdapter listAdapter, List<City> originalData) {
+        CitiesFilter(CityAdapter listAdapter) {
             this.listAdapter = listAdapter;
-            this.originalData = originalData;
-            this.filteredData = new ArrayList<>();
+
         }
 
 
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
-            filteredData.clear();
+
+            final List<City> cities = listAdapter.presenter.searchCities(constraint.toString());
             final FilterResults results = new FilterResults();
-
-
-            if (TextUtils.isEmpty(constraint.toString())) {
-                filteredData.addAll(originalData);
-            } else {
-                final String filterPattern = constraint.toString().toLowerCase().trim();
-
-                for (final City city : originalData) {
-                    // set condition for filter here
-                    if (city.name.toLowerCase().contains(filterPattern)) {
-                        filteredData.add(city);
-                    }
-                }
-            }
-
-            results.values = filteredData;
-            results.count = filteredData.size();
+            results.values = cities;
+            results.count = cities.size();
             return results;
         }
 
         @Override
         protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-            listAdapter.addFilerCities((List<City>) filterResults.values);
+            listAdapter.addCities((List<City>) filterResults.values);
 
         }
     }

@@ -1,0 +1,65 @@
+[
+  {
+    "country": "NL",
+    "name": "Middeldijk",
+    "_id": "2750888",
+    "coord": {
+      "lat": "51.849998",
+      "lon": "4.51667"
+    }
+  },
+  {
+    "country": "DK",
+    "name": "Understed",
+    "_id": "2610888",
+    "coord": {
+      "lat": "57.383331",
+      "lon": "10.51667"
+    }
+  },
+  {
+    "country": "DK",
+    "name": "Skodsborg",
+    "_id": "2613685",
+    "coord": {
+      "lat": "55.822498",
+      "lon": "12.57324"
+    }
+  },
+  {
+    "country": "DK",
+    "name": "Smidstrup",
+    "_id": "2613357",
+    "coord": {
+      "lat": "55.865688",
+      "lon": "12.55787"
+    }
+  },
+  {
+    "country": "BG",
+    "name": "Rastnik",
+    "_id": "6460975",
+    "coord": {
+      "lat": "41.400002",
+      "lon": "25.283331"
+    }
+  },
+  {
+    "country": "BG",
+    "name": "Rastnik",
+    "_id": "727762",
+    "coord": {
+      "lat": "41.400002",
+      "lon": "25.283331"
+    }
+  },
+  {
+    "country": "LT",
+    "name": "Murava",
+    "_id": "596826",
+    "coord": {
+      "lat": "54.916672",
+      "lon": "23.966669"
+    }
+  }
+]

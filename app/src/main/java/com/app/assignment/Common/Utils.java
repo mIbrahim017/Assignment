@@ -1,6 +1,5 @@
 package com.app.assignment.Common;
 
-import android.content.Context;
 import android.databinding.BindingAdapter;
 import android.widget.ImageView;
 
@@ -28,5 +27,10 @@ public final class Utils {
         Picasso.with(view.getContext()).load(imageUrl).into(view);
     }
 
-
+    public static boolean isEmpty(String str) {
+        if (str == null || str.length() == 0)
+            return true;
+        else
+            return false;
+    }
 }

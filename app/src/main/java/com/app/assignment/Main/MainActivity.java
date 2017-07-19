@@ -12,7 +12,6 @@ import android.view.MenuItem;
 
 import com.app.assignment.Common.BaseActivity;
 import com.app.assignment.Common.DependenciesManager;
-import com.app.assignment.Map.MapsActivity;
 import com.app.assignment.R;
 import com.app.assignment.repository.model.City;
 
@@ -31,7 +30,13 @@ public class MainActivity extends BaseActivity implements MainContract.View {
     private MainContract.Presenter presenter;
     private CityAdapter cityAdapter;
     private SearchView searchView;
-
+    private Runnable removeLoaderRunnable = new Runnable() {
+        @Override
+        public void run() {
+            cityAdapter.addLoadMoreItem();
+            presenter.loadCities();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +49,6 @@ public class MainActivity extends BaseActivity implements MainContract.View {
 
     }
 
-
     private void initToolbar() {
 
 
@@ -52,7 +56,6 @@ public class MainActivity extends BaseActivity implements MainContract.View {
         setTitle(getString(R.string.app_name));
         mToolbar.setTitleTextColor(ContextCompat.getColor(this, android.R.color.white));
     }
-
 
     @Override
     protected void onDestroy() {
@@ -67,24 +70,14 @@ public class MainActivity extends BaseActivity implements MainContract.View {
 
     }
 
-
     private void initRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
     }
 
-
-    private Runnable removeLoaderRunnable = new Runnable() {
-        @Override
-        public void run() {
-            cityAdapter.addLoadMoreItem();
-            presenter.loadCities();
-        }
-    };
-
     private void initAdapter() {
-        cityAdapter = new CityAdapter(this ,recyclerView);
+        cityAdapter = new CityAdapter(this, recyclerView, presenter);
         recyclerView.setAdapter(cityAdapter);
         cityAdapter.setOnLoadMoreListener(new CityAdapter.OnLoadMoreListener() {
             @Override
