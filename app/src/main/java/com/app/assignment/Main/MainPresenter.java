@@ -1,6 +1,7 @@
 package com.app.assignment.Main;
 
 import android.content.SharedPreferences;
+import android.support.annotation.WorkerThread;
 import android.util.Log;
 
 import com.app.assignment.repository.CityRepository;
@@ -30,7 +31,7 @@ public class MainPresenter implements MainContract.Presenter {
     private int currentPage = 1;
 
 
-    private SearchCityInteractor searchCityInteractor;
+
 
 
     public MainPresenter(CityRepository repo, final MainContract.View view, SharedPreferences sharedPreferences) {
@@ -78,7 +79,6 @@ public class MainPresenter implements MainContract.Presenter {
 
     private void showList(List<City> cities) {
         if (view == null) return;
-        searchCityInteractor = new SearchCityInteractor(cities);
         view.onCitiesLoaded(cities);
 
 
@@ -114,10 +114,10 @@ public class MainPresenter implements MainContract.Presenter {
 
     }
 
+    @WorkerThread
     @Override
     public List<City> searchCities(String prefix) {
-        if (searchCityInteractor == null) return Collections.emptyList();
-        return searchCityInteractor.search(prefix);
+        return repo.search(prefix);
     }
 
     @Override

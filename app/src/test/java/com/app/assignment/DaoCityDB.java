@@ -11,7 +11,12 @@ import io.reactivex.Flowable;
  * Created by mohamed ibrahim on 7/19/2017.
  */
 
-public class DaoCityDB implements CityDao {
+public class DaoCityDB extends CityDao {
+    @Override
+    public List<City> search(String search) {
+        return null;
+    }
+
     @Override
     public Flowable<List<City>> loadCities() {
         return null;
