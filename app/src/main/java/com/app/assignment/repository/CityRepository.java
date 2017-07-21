@@ -4,17 +4,11 @@ import com.app.assignment.repository.local.CityDao;
 import com.app.assignment.repository.model.City;
 import com.app.assignment.repository.remote.APIsServices;
 
-import org.reactivestreams.Publisher;
-
 import java.util.List;
 
-import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import io.reactivex.internal.operators.completable.CompletableFromAction;
 
 /**
  * Created by mohamed ibrahim on 7/14/2017.
@@ -29,6 +23,11 @@ public class CityRepository {
     public CityRepository(APIsServices services, CityDao db) {
         this.services = services;
         this.db = db;
+    }
+
+
+    public List<City> search(String search) {
+        return db.search(search);
     }
 
 

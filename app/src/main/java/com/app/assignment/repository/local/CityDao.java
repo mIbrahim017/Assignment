@@ -17,23 +17,26 @@ import io.reactivex.Flowable;
  */
 
 @Dao
-public interface CityDao {
+public abstract class CityDao {
+
+
+    @Query("SELECT * FROM CITY    WHERE  name LIKE '%' || :search || '%'  ORDER BY name ASC")
+   public abstract   List<City> search(String search);
 
 
     @Query("SELECT * FROM CITY ORDER BY name  ASC")
-    Flowable<List<City>> loadCities();
-
+    public abstract  Flowable<List<City>> loadCities();
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertAll(List<City> cities);
+    public abstract void insertAll(List<City> cities);
 
 
     @Query("DELETE FROM CITY")
-    void deleteAllCities();
+    public  abstract void deleteAllCities();
 
 
     @Delete
-    void deleteAll(City... cities);
+    public abstract void deleteAll(City... cities);
 
 }
