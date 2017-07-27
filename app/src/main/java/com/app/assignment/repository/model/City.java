@@ -24,9 +24,9 @@ public class City {
 
 
 
-    public static City create(String name , String country){
+    public static City create(int id ,String name , String country){
         City c  = new City();
-        c._id = System.currentTimeMillis();
+        c._id = id;
         c.name = name ;
         c.country = country ;
         Coord coord = new Coord();
