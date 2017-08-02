@@ -1,9 +1,13 @@
 package com.app.assignment.Common;
 
 import android.arch.persistence.room.Room;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.VisibleForTesting;
 
 import com.app.assignment.Main.MainActivity;
@@ -15,7 +19,15 @@ import com.app.assignment.repository.local.CityDao;
 import com.app.assignment.repository.remote.APIsFactory;
 import com.app.assignment.repository.remote.APIsServices;
 
-import static android.content.Context.MODE_PRIVATE;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.annotations.NonNull;
+
 import static com.app.assignment.Map.MapsActivity.LAT_KEY;
 import static com.app.assignment.Map.MapsActivity.LNG_KEY;
 import static com.app.assignment.Map.MapsActivity.NAME_KEY;
@@ -31,9 +43,9 @@ public class DependenciesManager {
 
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-     public static AppDatabase db;
-     private static SharedPreferences sharedPreferences;
-
+    public static AppDatabase db;
+    private static SharedPreferences sharedPreferences;
+    private static Flowable<Boolean> booleanObservable;
     private APIsServices services = APIsFactory.createInstance("http://assignment.pharos-solutions.de");
 
     private DependenciesManager() {
@@ -41,14 +53,45 @@ public class DependenciesManager {
     }
 
 
-
-    public static void init(Context context) {
+    public static void init(final Context context) {
         db = Room.databaseBuilder(context, AppDatabase.class, "database-task").build();
         sharedPreferences = context.getSharedPreferences("sharedprefs-task", Context.MODE_PRIVATE);
+
+
+        booleanObservable = Flowable.create(new FlowableOnSubscribe<Boolean>() {
+
+            @Override
+            public void subscribe(@NonNull final FlowableEmitter<Boolean> e) throws Exception {
+
+                try {
+                    ConnectivityManager cm =
+                            (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+                    final IntentFilter filter = new IntentFilter();
+                    filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+                    context.registerReceiver(new BroadcastReceiver() {
+                        @Override
+                        public void onReceive(Context context, Intent intent) {
+                            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                            NetworkInfo netInfo = cm.getActiveNetworkInfo();
+                            e.onNext(netInfo != null && netInfo.isConnected());
+                        }
+                    }, filter);
+
+                    NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                    boolean isConnected = activeNetwork != null &&
+                            activeNetwork.isConnectedOrConnecting();
+
+                    e.onNext(isConnected);
+                } catch (Throwable ex) {
+                    e.onError(ex);
+                }
+            }
+        } , BackpressureStrategy.LATEST);
     }
 
 
-    public CityDao cityDao(){
+    public CityDao cityDao() {
         return db.cityDao();
     }
 
@@ -58,7 +101,7 @@ public class DependenciesManager {
     }
 
     public void inject(MainActivity mainActivity) {
-        mainActivity.configureWith(new MainPresenter(cityRepository(), mainActivity, sharedPreferences));
+        mainActivity.configureWith(new MainPresenter(cityRepository(), mainActivity, sharedPreferences, booleanObservable));
 
     }
 
