@@ -12,11 +12,23 @@
         android:background="?attr/colorPrimary"/>
 
 
+    <TextView
+        android:textSize="24sp"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:id="@+id/message"
+        android:layout_below="@+id/toolbar"
+        android:textColor="#fff"
+        android:background="#fc0505"
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 
 
     <android.support.v7.widget.RecyclerView
         android:layout_margin="8dp"
-        android:layout_below="@+id/toolbar"
+        android:layout_below="@+id/message"
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

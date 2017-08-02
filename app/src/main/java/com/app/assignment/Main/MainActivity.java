@@ -9,6 +9,8 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.app.assignment.Common.BaseActivity;
 import com.app.assignment.Common.DependenciesManager;
@@ -26,6 +28,9 @@ public class MainActivity extends BaseActivity implements MainContract.View {
     RecyclerView recyclerView;
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
+    @BindView(R.id.message)
+    TextView message;
+
 
     private MainContract.Presenter presenter;
     private CityAdapter cityAdapter;
@@ -89,6 +94,15 @@ public class MainActivity extends BaseActivity implements MainContract.View {
 
     }
 
+    @Override
+    public void isNetworkAvailable(boolean b) {
+        if (!b ) {
+            message.setVisibility(View.VISIBLE);
+            message.setText("No Internet connection");
+        }else  {
+            message.setVisibility(View.GONE);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
